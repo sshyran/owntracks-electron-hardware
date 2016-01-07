@@ -94,4 +94,11 @@ An example:
 }
 ```
 
+## Requirements / Credits
+
+* [TinyGPS_SparkCore](https://github.com/krvarma/TinyGPS_SparkCore) by Krishnaraj Varma (GPL)
+* [SparkJson](https://github.com/menan/SparkJson) by Menan Vadivel (MIT)
+* [MQTT for Spark](https://github.com/hirotakaster/MQTT) by Hirotaka (MIT) **Note: we have provided several patches for this library**
+* [HTU21D](https://github.com/romainmp/HTU21D) by romainp (GPL)
+
   [OwnTracks]: http://owntracks.org
