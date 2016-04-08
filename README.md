@@ -2,7 +2,7 @@
 
 ** Work in Progres. Maybe. **
 
-This is a proof of concept for implementing a device which is [OwnTracks] compatible on a [Particle Electron](https://docs.particle.io/datasheets/electron-datasheet/).
+This is a proof of concept for implementing an [OwnTracks]-compatible device on a [Particle Electron](https://docs.particle.io/datasheets/electron-datasheet/).
 
 ![Electron with GPS](assets/electron.jpg)
 
@@ -28,7 +28,7 @@ A example:
 A backend program in Python periodically polls the `status` from the Particle Cloud via a REST call publishes the data to an MQTT broker in typical [OwnTracks JSON format](http://owntracks.org/booklet/tech/json/), with a `tid` constructed from the last two digits of the Electron's _deviceID_:
 
 ```json
-{"_type": "location", "lon": 2.333510 "tid": "38", "batt": 5.0, "lat": 48.854458, "tst": 1460104015}
+{"_type": "location", "lon": 2.333510, "tid": "38", "batt": 5.0, "lat": 48.854458, "tst": 1460104015}
 ```
 
 ## Wiring
