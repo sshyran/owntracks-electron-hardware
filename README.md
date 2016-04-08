@@ -86,10 +86,14 @@ Compile succeeded.
 Saved firmware to: owntracks.bin
 ```
 
-Then flash the resulting firmware file (e.g. `electron_firmware_1460118436052.bin`) to your Electron using 
+Then flash the resulting firmware file (e.g. `electron_firmware_1460118436052.bin`) to your Electron using one of the following:
 
 ```
-particle flash --usb owntracks.bin
+$ particle flash --usb owntracks.bin
+
+or
+
+$ particle flash --serial owntracks.bin
 ```
 
 ## Requirements / Credits
