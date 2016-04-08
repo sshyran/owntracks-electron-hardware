@@ -16,7 +16,7 @@ __author__    = 'Jan-Piet Mens <jpmens()gmail.com>'
 __copyright__ = 'Copyright 2016 Jan-Piet Mens'
 __license__   = """GPL2"""
 
-def get_cloud(token, device_id):
+def get_cloud(mqttc, token, device_id):
 
     payload = None
     params = {
@@ -29,6 +29,7 @@ def get_cloud(token, device_id):
     if r.status_code != 200:
         print r.status_code
         print r.text
+        mqttc.publish(topic + '/warn', "status=%s" % r.status_code, qos=2, retain=False)
         return None
 
     print r.text
@@ -36,6 +37,7 @@ def get_cloud(token, device_id):
     try:
         data = json.loads(r.content);
     except:
+        mqttc.publish(topic + '/warn', "cannot parse JSON" % r.status_code, qos=2, retain=False)
         print "Cannot parse JSON"
         return None
 
@@ -44,6 +46,7 @@ def get_cloud(token, device_id):
             result = data['result']
             tst,lat,lon,vcell,soc = result.split(',')
             if int(tst) < 1:
+                mqttc.publish(topic + '/warn', "ignore-zero %s" % result, qos=2, retain=False)
                 print "Ignoring zeroed results:", result
                 return None
             payload = {
@@ -114,7 +117,7 @@ mqttc.connect(hostname, port, 60)
 
 while True:
     try:
-        payload = get_cloud(token, device_id)
+        payload = get_cloud(mqttc, token, device_id)
         if payload is not None:
             (res, mid) =  mqttc.publish(topic, payload, qos=2, retain=True)
     except socket.error:
