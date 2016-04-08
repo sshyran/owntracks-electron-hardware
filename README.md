@@ -14,7 +14,7 @@ The intention was to have the device report via MQTT (which is possible since th
 
 Instead, the Electron will publish a single Particle _variable_ named `status` with a CSV string in it containing
 
-* timestamp (`tst)
+* timestamp (`tst`)
 * latitude (`lat`)
 * longitude (`lon`)
 * battery level (`batt`)
@@ -72,8 +72,28 @@ An example:
 }
 ```
 
+## Compiling
+
+Compile the `src/` directory in the cloud; if you're on Unix/Linux you should be able to type `make`:
+
+```
+$ particle compile electron src/ --saveTo owntracks.bin
+
+Compiling code for electron
+...
+
+Compile succeeded.
+Saved firmware to: owntracks.bin
+```
+
+Then flash the resulting firmware file (e.g. `electron_firmware_1460118436052.bin`) to your Electron using 
+
+```
+particle flash --usb owntracks.bin
+```
+
 ## Requirements / Credits
 
-* [TinyGPS_SparkCore](https://github.com/krvarma/TinyGPS_SparkCore) by Krishnaraj Varma (GPL)
+* [TinyGPS++](https://github.com/codegardenllc/tiny_gps_plus)
 
   [OwnTracks]: http://owntracks.org
