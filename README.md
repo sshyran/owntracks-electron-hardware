@@ -6,7 +6,7 @@ This is a proof of concept for implementing an [OwnTracks]-compatible device on 
 
 ![Electron with GPS](assets/electron.jpg)
 
-The intention was to have the device report via MQTT (which is possible since the [v0.5.0-rc.1 firmware](https://github.com/spark/firmware/releases), but we've dropped this idea for a number of reasons:
+The intention was to have the device report via MQTT (which is possible since the [v0.5.0-rc.1 firmware](https://github.com/spark/firmware/releases)), but we've dropped this idea for a number of reasons:
 
 * No TLS 
 * The TCP traffic churns through the data plan
@@ -18,17 +18,26 @@ Instead, the Electron will publish a single Particle _variable_ named `status` w
 * latitude (`lat`)
 * longitude (`lon`)
 * battery level (`batt`)
+* state of charge (`soc`)
 
 A example:
 
 ```
-1460104015,48.854458,2.333510,5.0,256.0
+1460104015,48.854458,2.333510,5.0,69.0
 ```
 
 A backend program in Python periodically polls the `status` from the Particle Cloud via a REST call publishes the data to an MQTT broker in typical [OwnTracks JSON format](http://owntracks.org/booklet/tech/json/), with a `tid` constructed from the last two digits of the Electron's _deviceID_:
 
 ```json
-{"_type": "location", "lon": 2.333510, "tid": "38", "batt": 5.0, "lat": 48.854458, "tst": 1460104015}
+{
+    "_type": "location",
+    "batt": 5.0,
+    "lat": 48.854458,
+    "lon": 2.33351,
+    "soc": 69.0,
+    "tid": "38",
+    "tst": 1460104015
+}
 ```
 
 ## Wiring
@@ -60,7 +69,7 @@ An example:
 {
   "cmd": "VarReturn",
   "name": "location",
-  "result": "1460104015,48.854458,2.333510,5.0,256.0",
+  "result": "1460104015,48.854458,2.333510,5.0,69.0",
   "coreInfo": {
     "last_app": "",
     "last_heard": "2016-01-07T17:22:38.679Z",
