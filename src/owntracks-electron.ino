@@ -22,8 +22,6 @@ double SoC;
 TinyGPSPlus gps;
 FuelGauge fuel;
 
-unsigned long toggle;
-
 void setup()
 {
 	RGB.control(true);
@@ -39,41 +37,53 @@ void setup()
 
 void loop()
 {
+	/* sync the clock once a day */
 	if (Time.now() > lastSync + 86400) {
 		Particle.syncTime();
 		lastSync = Time.now();
 	}
-	for (unsigned long start = millis(); millis() - start < 1000;) {
-		while (Serial1.available()) {
-			char c = Serial1.read();
-			gps.encode(c);
-		}
-	}
 
-	if (gps.location.isValid()) {
-		if (toggle % 2 == 0) {
-			RGB.color(0, 255, 0);
-		}
-		last = Time.now();
-		lat = gps.location.lat();
-		lon = gps.location.lng();
-
-	} else {
-		if (toggle % 2 == 0) {
-			RGB.color(255, 0, 0);
-		}
-	}
-
-	if (toggle % 2 == 1) {
-		RGB.color(0, 0, 255);
-	}
+	/* read battery state every 10 min */
 	if (Time.now() > lastCell + 600) {
 		VCell = fuel.getVCell();
 		SoC = fuel.getSoC();
 		lastCell = Time.now();
 	}
+
+	/* read gps */
+	while (Serial1.available()) {
+		char c = Serial1.read();
+		gps.encode(c);
+	}
+	if (gps.location.isValid()) {
+		last = Time.now();
+		lat = gps.location.lat();
+		lon = gps.location.lng();
+	}
+
+	/* Status show GPS and Connection status alternating 
+	 *
+	 * show red LED if gps location is not valid
+	 * show greed LED no gps location is available
+	 *
+	 * show blue LED if connected
+	 * show no LED if not connected
+	 */
+	if (Time.now() % 2 == 0) {
+		if (gps.location.isValid()) {
+			RGB.color(0, 255, 0);
+		} else {
+			RGB.color(255, 0, 0);
+		}
+	} else {
+		if (Particle.connected()) {
+			RGB.color(0, 0, 255);
+		} else {
+			RGB.color(0, 0, 0);
+		}
+	}
+
+	/* set cloud variable */
 	snprintf(status, sizeof(status), "%ld,%.6f,%.6f,%.1f,%.1f",
 		last, lat, lon, VCell, SoC);
-	toggle++;
-	delay(200);
 }
