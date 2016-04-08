@@ -2,67 +2,46 @@
 
 ** Work in Progres. Maybe. **
 
-This is a proof of concept for implementing a device which is [OwnTracks] compatible. The initial development is being done on a Particle Photon, and it is assumed that this can easily be ported to a Particle Electron when it becomes available. (We don't yet have an Electron.)
+This is a proof of concept for implementing a device which is [OwnTracks] compatible on a [Particle Electron](https://docs.particle.io/datasheets/electron-datasheet/).
 
-![Photon with GPS](assets/photon.jpg)
+![Electron with GPS](assets/electron.jpg)
 
-The resulting device will have (or not have) the following capabilities:
+The intention was to have the device report via MQTT (which is possible since the [v0.5.0-rc.1 firmware](https://github.com/spark/firmware/releases), but we've dropped this idea for a number of reasons:
 
-* JSON payloads compatible with [OwnTracks JSON](http://owntracks.org/booklet/tech/json/)
-* No TLS, because the firmware doesn't support TLS.
-* Configurable MQTT broker (address or hostname) and port.
-* Configurable MQTT broker username and password.
-* Configurable reporting interval
-* Possibly configurable reporting after movement of _n_ meters.
+* No TLS 
+* The TCP traffic churns through the data plan
+* possible instability
 
-Note that the absence of TLS is a severe issue!
+Instead, the Electron will publish a single Particle _variable_ named `status` with a CSV string in it containing
 
+* timestamp (`tst)
+* latitude (`lat`)
+* longitude (`lon`)
+* battery level (`batt`)
 
-An example published from our current firmware (186 octets per publish, give or take a few):
+A example:
+
+```
+1460104015,48.854458,2.333510,5.0,256.0
+```
+
+A backend program in Python periodically polls the `status` from the Particle Cloud via a REST call publishes the data to an MQTT broker in typical [OwnTracks JSON format](http://owntracks.org/booklet/tech/json/), with a `tid` constructed from the last two digits of the Electron's _deviceID_:
 
 ```json
-{
-  "_type": "location",
-  "dist": 0.54,
-  "alt": 177,
-  "cog": 51,
-  "tst": 1452187610,
-  "temp": 23.02,
-  "humid": 28.69,
-  "lat": 48.854458,
-  "lon": 2.333510,
-  "vel": 1
-}
+{"_type": "location", "lon": 2.333510 "tid": "38", "batt": 5.0, "lat": 48.854458, "tst": 1460104015}
 ```
 
-Note also, that this prototype contains _temperature_ and _humidity_ values from an optional sensor we've experimentally added.
+## Wiring
 
 
-![Photon with GPS](assets/electron-gps_bb.png)
+![Electron with GPS](assets/electron-gps_bb.png)
 
-
-## Configuration
-
-The firmware is pre-configured to the `test.mosquitto.org` broker on port `1883`. This can be changed by setting via the Particle cloud, the following:
-
-```sh
-#!/bin/sh
-
-access_token=abababababababababababababababababababab
-devid=nnnnnnnnnnnnnnnnnnnnnnnn
-broker="mqtt.example.org:1883"
-broker="192.168.1.220:9003"
-
-curl https://api.particle.io/v1/devices/${devid}/setbroker \
-	-d access_token="${access_token}" \
-	-d arg="${broker}"
-```
 
 ## Cloud variables
 
 The firmware updates the following Particle variables:
 
-* `location` contains a short JSON with the current `lat` and `lon`.
+* `status` contains the CSV described above
 
 The content of these variables can be accessed via the Particle cloud as follows
 
@@ -71,9 +50,8 @@ The content of these variables can be accessed via the Particle cloud as follows
 
 access_token=abababababababababababababababababababab
 devid=nnnnnnnnnnnnnnnnnnnnnnnn
-var="location"
 
-curl "https://api.particle.io/v1/devices/${devid}/${var}?access_token=${access_token}"
+curl "https://api.particle.io/v1/devices/${devid}/status?access_token=${access_token}"
 ```
 
 An example:
@@ -82,7 +60,7 @@ An example:
 {
   "cmd": "VarReturn",
   "name": "location",
-  "result": "{\"lat\":48.854458,\"lon\":2.333510}",
+  "result": "1460104015,48.854458,2.333510,5.0,256.0",
   "coreInfo": {
     "last_app": "",
     "last_heard": "2016-01-07T17:22:38.679Z",
@@ -97,8 +75,5 @@ An example:
 ## Requirements / Credits
 
 * [TinyGPS_SparkCore](https://github.com/krvarma/TinyGPS_SparkCore) by Krishnaraj Varma (GPL)
-* [SparkJson](https://github.com/menan/SparkJson) by Menan Vadivel (MIT)
-* [MQTT for Spark](https://github.com/hirotakaster/MQTT) by Hirotaka (MIT) **Note: we have provided several patches for this library**
-* [HTU21D](https://github.com/romainmp/HTU21D) by romainp (GPL)
 
   [OwnTracks]: http://owntracks.org
