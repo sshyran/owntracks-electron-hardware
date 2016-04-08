@@ -94,13 +94,9 @@ Compile succeeded.
 Saved firmware to: owntracks.bin
 ```
 
-Then flash the resulting firmware file (i.e. `owntracks.bin`) to your Electron using one of the following ([documentation](https://docs.particle.io/guide/tools-and-features/cli/core/#flashing-over-serial-for-the-electron):
+Then flash the resulting firmware file (i.e. `owntracks.bin`) to your Electron using: ([documentation](https://docs.particle.io/guide/tools-and-features/cli/core/#flashing-over-serial-for-the-electron):
 
 ```
-$ particle flash --usb owntracks.bin
-
-or
-
 $ particle flash --serial owntracks.bin
 ```
 
