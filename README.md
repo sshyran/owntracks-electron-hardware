@@ -15,7 +15,7 @@ The intention was to have the device report via MQTT (which is possible since th
 Instead, the Electron will publish a single Particle _variable_ named `status` with a CSV string in it containing, from left to right:
 
 ```
-1460104015,48.854458,2.333510,5.0,69.0
+1460104015,48.854458,2.333510,5.0,69.0,999
 ```
 
 * timestamp (`tst`)
@@ -23,6 +23,7 @@ Instead, the Electron will publish a single Particle _variable_ named `status` w
 * longitude (`lon`)
 * battery level (`batt`)
 * state of charge (`soc`)
+* uptime (`up`)
 
 
 A backend Python program periodically polls the `status` from the Particle Cloud via a REST call publishes the data to an MQTT broker in typical [OwnTracks JSON format](http://owntracks.org/booklet/tech/json/), with a `tid` constructed from the last two digits of the Electron's _deviceID_:
@@ -35,6 +36,7 @@ A backend Python program periodically polls the `status` from the Particle Cloud
     "lon": 2.33351,
     "soc": 69.0,
     "tid": "38",
+    "up": 999,
     "tst": 1460104015
 }
 ```
@@ -68,7 +70,7 @@ An example:
 {
   "cmd": "VarReturn",
   "name": "location",
-  "result": "1460104015,48.854458,2.333510,5.0,69.0",
+  "result": "1460104015,48.854458,2.333510,5.0,69.0,999",
   "coreInfo": {
     "last_app": "",
     "last_heard": "2016-01-07T17:22:38.679Z",

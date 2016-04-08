@@ -44,7 +44,7 @@ def get_cloud(mqttc, token, device_id):
     if 'result' in data:
         try:
             result = data['result']
-            tst,lat,lon,vcell,soc = result.split(',')
+            tst,lat,lon,vcell,soc,uptime = result.split(',')
             if int(tst) < 1:
                 mqttc.publish(topic + '/warn', "ignore-zero %s" % result, qos=2, retain=False)
                 print "Ignoring zeroed results:", result
@@ -57,6 +57,7 @@ def get_cloud(mqttc, token, device_id):
                 'tid':          device_id[-2:],
                 'batt':         float(vcell),       # Battery voltage
                 'soc':          float(soc),         # State of Charge (in %)
+                'up':           int(uptime),
             }
 
             return json.dumps(payload)

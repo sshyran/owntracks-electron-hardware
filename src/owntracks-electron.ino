@@ -37,6 +37,8 @@ void setup()
 
 void loop()
 {
+	unsigned long uptime = millis() / 1000;
+
 	/* sync the clock once a day */
 	if (Time.now() > lastSync + 86400) {
 		Particle.syncTime();
@@ -84,6 +86,6 @@ void loop()
 	}
 
 	/* set cloud variable */
-	snprintf(status, sizeof(status), "%ld,%.6f,%.6f,%.1f,%.1f",
-		last, lat, lon, VCell, SoC);
+	snprintf(status, sizeof(status), "%ld,%.6f,%.6f,%.1f,%.1f,%ld",
+		last, lat, lon, VCell, SoC, uptime);
 }
