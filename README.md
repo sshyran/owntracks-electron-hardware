@@ -12,7 +12,11 @@ The intention was to have the device report via MQTT (which is possible since th
 * The TCP traffic churns through the data plan
 * possible instability
 
-Instead, the Electron will publish a single Particle _variable_ named `status` with a CSV string in it containing
+Instead, the Electron will publish a single Particle _variable_ named `status` with a CSV string in it containing, from left to right:
+
+```
+1460104015,48.854458,2.333510,5.0,69.0
+```
 
 * timestamp (`tst`)
 * latitude (`lat`)
@@ -20,13 +24,8 @@ Instead, the Electron will publish a single Particle _variable_ named `status` w
 * battery level (`batt`)
 * state of charge (`soc`)
 
-A example:
 
-```
-1460104015,48.854458,2.333510,5.0,69.0
-```
-
-A backend program in Python periodically polls the `status` from the Particle Cloud via a REST call publishes the data to an MQTT broker in typical [OwnTracks JSON format](http://owntracks.org/booklet/tech/json/), with a `tid` constructed from the last two digits of the Electron's _deviceID_:
+A backend Python program periodically polls the `status` from the Particle Cloud via a REST call publishes the data to an MQTT broker in typical [OwnTracks JSON format](http://owntracks.org/booklet/tech/json/), with a `tid` constructed from the last two digits of the Electron's _deviceID_:
 
 ```json
 {
@@ -107,6 +106,6 @@ $ particle flash --serial owntracks.bin
 
 ## Requirements / Credits
 
-* [TinyGPS++](https://github.com/codegardenllc/tiny_gps_plus)
+* [TinyGPS++](https://github.com/codegardenllc/tiny_gps_plus), a copy of which is included in `src/`.
 
   [OwnTracks]: http://owntracks.org
