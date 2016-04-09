@@ -13,6 +13,8 @@ long lastCell;
 
 char status[128];
 
+int set_interval(String secs);		// Particle function
+unsigned int interval = 10;		// "publish" interval in seconds
 long last;
 double lat;
 double lon;
@@ -33,6 +35,7 @@ void setup()
 	lastCell = 0;
 
 	Particle.variable("status", status);
+	Particle.function("interval", set_interval);
 }
 
 void loop()
@@ -88,4 +91,15 @@ void loop()
 	/* set cloud variable */
 	snprintf(status, sizeof(status), "%ld,%.6f,%.6f,%.1f,%.1f,%ld",
 		last, lat, lon, VCell, SoC, uptime);
+}
+
+int set_interval(String secs)
+{
+	int n = atoi(secs);
+
+	if (n >= 10) {
+		interval = n;
+	}
+
+	return (1);
 }
