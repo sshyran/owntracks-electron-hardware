@@ -14,7 +14,7 @@ long lastCell;
 char status[128];
 
 int set_interval(String secs);		// Particle function
-unsigned int interval = 10;		// "publish" interval in seconds
+unsigned int interval = 0;		// "publish" interval in seconds 
 long last;
 double lat;
 double lon;
@@ -61,7 +61,7 @@ void loop()
 		gps.encode(c);
 	}
 	if (gps.location.isValid()) {
-		last = Time.now();
+		last = Time.now() - gps.location.age() / 1000;
 		lat = gps.location.lat();
 		lon = gps.location.lng();
 	}
@@ -91,6 +91,16 @@ void loop()
 	/* set cloud variable */
 	snprintf(status, sizeof(status), "%ld,%.6f,%.6f,%.1f,%.1f,%ld",
 		last, lat, lon, VCell, SoC, uptime);
+
+	if (gps.location.isValid()) {
+		while (!Particle.publish("owntracks", status, 600, PRIVATE)) {
+			delay(5000);
+		}
+		delay(10000);
+		if (interval) {
+			System.sleep(SLEEP_MODE_DEEP, interval);
+		}
+	}
 }
 
 int set_interval(String secs)
