@@ -46,7 +46,7 @@ def get_cloud(mqttc, token, device_id):
             result = data['result']
             tst,lat,lon,vcell,soc,uptime = result.split(',')
             if int(tst) < 1:
-                mqttc.publish(topic + '/warn', "ignore-zero %s" % result, qos=2, retain=False)
+                mqttc.publish(topic + '/warn', str("ignore-zero %s" % result), qos=2, retain=False)
                 print "Ignoring zeroed results:", result
                 return None
             payload = {
