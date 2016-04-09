@@ -14,11 +14,14 @@ long lastCell;
 char status[128];
 
 int set_interval(String secs);		// Particle function
-unsigned int interval = 0;		// "publish" interval in seconds 
+
+#define INTERVAL_ADDRESS 0x0000
+#define INTERVAL_DEFAULT 0
+uint32_t interval;			// "publish" interval in seconds 
+
 long last;
 double lat;
 double lon;
-double VCell;
 double SoC;
 
 TinyGPSPlus gps;
@@ -34,14 +37,18 @@ void setup()
 	lastSync = Time.now();
 	lastCell = 0;
 
+	EEPROM.get(INTERVAL_ADDRESS, interval);
+	if (interval == 0xFFFFFFFF) {
+		interval = INTERVAL_DEFAULT;
+		EEPROM.put(INTERVAL_ADDRESS, interval);
+	}
+
 	Particle.variable("status", status);
 	Particle.function("interval", set_interval);
 }
 
 void loop()
 {
-	unsigned long uptime = millis() / 1000;
-
 	/* sync the clock once a day */
 	if (Time.now() > lastSync + 86400) {
 		Particle.syncTime();
@@ -50,7 +57,6 @@ void loop()
 
 	/* read battery state every 10 min */
 	if (Time.now() > lastCell + 600) {
-		VCell = fuel.getVCell();
 		SoC = fuel.getSoC();
 		lastCell = Time.now();
 	}
@@ -89,14 +95,26 @@ void loop()
 	}
 
 	/* set cloud variable */
-	snprintf(status, sizeof(status), "%ld,%.6f,%.6f,%.1f,%.1f,%ld",
-		last, lat, lon, VCell, SoC, uptime);
+	snprintf(status, sizeof(status), "%ld,%.6f,%.6f,%.1f,%ld",
+		last, lat, lon, SoC, interval);
 
 	if (gps.location.isValid()) {
 		while (!Particle.publish("owntracks", status, 600, PRIVATE)) {
-			delay(5000);
+			/* indicator for unsuccessfull publish */
+			for (int i = 5; i; i--) {
+				RGB.color(255, 0, 0);
+				delay(333);
+				RGB.color(0, 0, 0);
+				delay(667);
+			}
 		}
-		delay(10000);
+		/* countdown before going to sleep */
+		for (int i = 10; i; i--) {
+			RGB.color(0, 255, 0);
+			delay(333);
+			RGB.color(0, 0, 0);
+			delay(667);
+		}
 		if (interval) {
 			System.sleep(SLEEP_MODE_DEEP, interval);
 		}
@@ -107,8 +125,9 @@ int set_interval(String secs)
 {
 	int n = atoi(secs);
 
-	if (n >= 10) {
+	if (n >= 0) {
 		interval = n;
+		EEPROM.put(INTERVAL_ADDRESS, interval);
 	}
 
 	return (1);
