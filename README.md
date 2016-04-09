@@ -8,7 +8,7 @@ This is a proof of concept for implementing an [OwnTracks]-compatible device on 
 
 The intention was to have the device report via MQTT (which is possible since the [v0.5.0-rc.1 firmware](https://github.com/spark/firmware/releases)), but we've dropped this idea for a number of reasons:
 
-* No TLS 
+* No TLS
 * The TCP traffic churns through the data plan
 * possible instability
 
@@ -69,6 +69,23 @@ Then flash the resulting firmware file (i.e. `owntracks.bin`) to your Electron u
 ```
 $ particle flash --serial owntracks.bin
 ```
+
+## Interval
+
+The Electron will publish at a default interval of 10 seconds. You can change the interval to, say, 600 seconds, with something like:
+
+```bash
+#!/bin/sh
+access_token=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+devid=nnnnnnnnnnnnnnnnnnnnnnnn
+
+curl https://api.particle.io/v1/devices/${devid}/interval \
+	-d access_token="${access_token}" \
+	-d arg="600"
+```
+
+The new interval is writen to EEPROM and survices loss of power.
+
 
 ## Requirements / Credits
 
