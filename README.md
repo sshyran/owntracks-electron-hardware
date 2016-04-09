@@ -12,31 +12,33 @@ The intention was to have the device report via MQTT (which is possible since th
 * The TCP traffic churns through the data plan
 * possible instability
 
-Instead, the Electron will publish a single Particle _variable_ named `status` with a CSV string in it containing, from left to right:
+The second idea, the Electron should periodically and frequently publish a single Particle _variable_ named `status` with a CSV string in, it we also dropped because the CPU load this was causing drained the LiPo in less than 24 hours.
+
+What we now do is the Electron publishes, via the Particle cloud, a variable at a fixed _interval_ (user-configurable by invoking the `interval` Particle function OTA); the device then puts itself into deep sleep mode.
+
+The published _data_ is a CSV string which contains, from left to right:
 
 ```
-1460104015,48.854458,2.333510,5.0,69.0,999
+1460104015,48.854458,2.333510,69.0,600
 ```
 
 * timestamp (`tst`)
 * latitude (`lat`)
 * longitude (`lon`)
-* battery level (`batt`)
-* state of charge (`soc`)
-* uptime (`up`)
+* battery level (`batt`), actually _State of Charge_
+* interval (`_interval`)
 
 
-A backend Python program periodically polls the `status` from the Particle Cloud via a REST call publishes the data to an MQTT broker in typical [OwnTracks JSON format](http://owntracks.org/booklet/tech/json/), with a `tid` constructed from the last two digits of the Electron's _deviceID_:
+A backend Python program listens for PRIVATE events named `owntracks` from the the Particle Cloud, verifies the publishing device matches the configured _device_id_, and publishes the data to an MQTT broker in typical [OwnTracks JSON format](http://owntracks.org/booklet/tech/json/), with a `tid` constructed from the last two digits of the Electron's _deviceID_:
 
 ```json
 {
     "_type": "location",
-    "batt": 5.0,
+    "batt": 69.0,
     "lat": 48.854458,
     "lon": 2.33351,
-    "soc": 69.0,
     "tid": "38",
-    "up": 999,
+    "_interval": 600,
     "tst": 1460104015
 }
 ```
@@ -47,44 +49,10 @@ A backend Python program periodically polls the `status` from the Particle Cloud
 ![Electron with GPS](assets/electron-gps_bb.png)
 
 
-## Cloud variables
-
-The firmware updates the following Particle variables:
-
-* `status` contains the CSV described above
-
-The content of these variables can be accessed via the Particle cloud as follows
-
-```sh
-#!/bin/sh
-
-access_token=abababababababababababababababababababab
-devid=nnnnnnnnnnnnnnnnnnnnnnnn
-
-curl "https://api.particle.io/v1/devices/${devid}/status?access_token=${access_token}"
-```
-
-An example:
-
-```json
-{
-  "cmd": "VarReturn",
-  "name": "location",
-  "result": "1460104015,48.854458,2.333510,5.0,69.0,999",
-  "coreInfo": {
-    "last_app": "",
-    "last_heard": "2016-01-07T17:22:38.679Z",
-    "connected": true,
-    "last_handshake_at": "2016-01-07T17:04:08.239Z",
-    "deviceID": "nnnnnnnnnnnnnnnnnnnnnnnn",
-    "product_id": 6
-  }
-}
-```
 
 ## Compiling
 
-Compile the `src/` directory in the cloud; if you're on Unix/Linux you should be able to type `make`:
+Compile the `src/` directory in the cloud; if you're on Unix/Linux you should be able to type `make flash`:
 
 ```
 $ particle compile electron src/ --saveTo owntracks.bin
