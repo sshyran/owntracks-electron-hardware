@@ -1,8 +1,6 @@
 # electron
 
-** Work in Progres. Maybe. **
-
-This is a proof of concept for implementing an [OwnTracks]-compatible device on a [Particle Electron](https://docs.particle.io/datasheets/electron-datasheet/).
+This is a proof of concept for implementing an [OwnTracks]-compatible device on a [Particle Electron](https://docs.particle.io/datasheets/electron-datasheet/). The photo shows the setup on a mini breadboard with (from left to right), the Electron's LiPo battery, the Electron and an [Adafruit Ultimate GPS](https://www.adafruit.com/products/746) on the breadboard, and the Electron's antenna.
 
 ![Electron with GPS](assets/electron.jpg)
 
@@ -45,9 +43,9 @@ A backend Python program listens for PRIVATE events named `owntracks` from the t
 
 ## Wiring
 
-
 ![Electron with GPS](assets/electron-gps_bb.png)
 
+When using the Ultimate GPS, we could connect the `EN`able pin to the Electron to switch off the GPS module whilst the Electron is asleep (as shown with the optional yellow connection).
 
 
 ## Compiling
@@ -64,7 +62,7 @@ Compile succeeded.
 Saved firmware to: owntracks.bin
 ```
 
-Then flash the resulting firmware file (i.e. `owntracks.bin`) to your Electron using: ([documentation](https://docs.particle.io/guide/tools-and-features/cli/core/#flashing-over-serial-for-the-electron):
+Then flash the resulting firmware file (i.e. `owntracks.bin`) to your Electron using: ([documentation](https://docs.particle.io/guide/tools-and-features/cli/core/#flashing-over-serial-for-the-electron)):
 
 ```
 $ particle flash --serial owntracks.bin
@@ -72,7 +70,7 @@ $ particle flash --serial owntracks.bin
 
 ## Interval
 
-The Electron will publish at a default interval of 10 seconds. You can change the interval to, say, 600 seconds, with something like:
+The Electron will publish at a default interval of 10 seconds. You can change the interval to, say, 600 seconds, with something like the following as long as your Electron is currently _online_ and connected to the Particle cloud:
 
 ```bash
 #!/bin/sh
@@ -86,9 +84,20 @@ curl https://api.particle.io/v1/devices/${devid}/interval \
 
 The new interval is writen to EEPROM and survices loss of power.
 
+Our measurements show that, when used with an inexpensive u-blox Neo 6M GPS module, and having the Electron publish its location every 10 minutes (600 seconds), it will last approximately 26 hours on a single charge of its LiPo battery and will have transmitted approximately 5.5KB of data per location publish, which is due to the wakeup from _deep sleep_ and all the overhead that entails (connect to Particle Cloud, DTLS, CoAP, etc.). Note that the net payload we transmit is approx 40 bytes, depending on the "width" of the _lat_/_lon_ coordinates.
 
-## Requirements / Credits
+
+## Requirements
+
+The Electron firmware requires:
 
 * [TinyGPS++](https://github.com/codegardenllc/tiny_gps_plus), a copy of which is included in `src/`.
+* [particle-cli](https://github.com/spark/particle-cli) installed to compile the sketch and flash it to the Electron.
+
+The back-end `obtain.py` program requires:
+
+* [paho-mqtt](https://pypi.python.org/pypi/paho-mqtt/) (`pip install paho-mqtt`)
+* [sseclient](https://pypi.python.org/pypi/sseclient/) (`pip install sseclient`)
+
 
   [OwnTracks]: http://owntracks.org
