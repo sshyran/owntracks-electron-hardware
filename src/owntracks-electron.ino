@@ -1,6 +1,11 @@
 /*
  * owntracks-electron.ino (C)2016 by Christoph Krey
  *
+ * GPS module must be connected to Serial at 9600bd. The Electron
+ * will, periodically, publish location data and battery status
+ * via the Particle Cloud and then, if the configured `interval' is
+ * set, go into deep sleep for `interval' seconds.
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by the
  * Free Software Foundation, version 2.1 of the License.
@@ -17,9 +22,9 @@ int set_interval(String secs);		// Particle function
 
 #define INTERVAL_ADDRESS 0x0000
 #define INTERVAL_DEFAULT 0
-uint32_t interval;			// "publish" interval in seconds 
+uint32_t interval;			// "publish" interval in seconds
 
-long last;
+long last_fix;
 double lat;
 double lon;
 double SoC;
@@ -67,12 +72,12 @@ void loop()
 		gps.encode(c);
 	}
 	if (gps.location.isValid()) {
-		last = Time.now() - gps.location.age() / 1000;
+		last_fix = Time.now() - gps.location.age() / 1000;
 		lat = gps.location.lat();
 		lon = gps.location.lng();
 	}
 
-	/* Status show GPS and Connection status alternating 
+	/* Status show GPS and Connection status alternating
 	 *
 	 * show red LED if gps location is not valid
 	 * show greed LED no gps location is available
@@ -96,7 +101,7 @@ void loop()
 
 	/* set cloud variable */
 	snprintf(status, sizeof(status), "%ld,%.6f,%.6f,%.1f,%ld",
-		last, lat, lon, SoC, interval);
+		last_fix, lat, lon, SoC, interval);
 
 	if (gps.location.isValid()) {
 		while (!Particle.publish("owntracks", status, 600, PRIVATE)) {
@@ -128,7 +133,7 @@ int set_interval(String secs)
 	if (n >= 0) {
 		interval = n;
 		EEPROM.put(INTERVAL_ADDRESS, interval);
+		return (1);
 	}
-
-	return (1);
+	return (0);	// tell caller this failed
 }
