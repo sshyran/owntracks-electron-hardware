@@ -1,5 +1,5 @@
 /*
- * owntracks-electron.ino (C)2016 by Christoph Krey
+ * owntracks-electron.ino (C)2016 by Christoph Krey & JP Mens
  *
  * GPS module must be connected to Serial at 9600bd. The Electron
  * will, periodically, publish location data and battery status
@@ -12,6 +12,15 @@
  */
 
 #include "TinyGPS++.h"
+
+/*
+ * When connecting an Adafruit Ultimate GPS, optionally
+ * wire the ENable pin from the GPS board to the Electron
+ * and define ENABLE_PIN to the digital pin on the Electron.
+ */
+
+#define ENABLE_PIN	D1
+
 
 long lastSync;
 long lastCell;
@@ -37,6 +46,10 @@ void setup()
 	RGB.control(true);
 
 	Serial1.begin(9600);
+#ifdef ENABLE_PIN
+	pinMode(ENABLE_PIN, OUTPUT);
+	digitalWrite(ENABLE_PIN, HIGH);
+#endif
 
 	Time.zone(0);
 	lastSync = Time.now();
@@ -113,6 +126,10 @@ void loop()
 				delay(667);
 			}
 		}
+#ifdef ENABLE_PIN
+		/* Switch off GPS module */
+		digitalWrite(ENABLE_PIN, LOW);
+#endif
 		/* countdown before going to sleep */
 		for (int i = 10; i; i--) {
 			RGB.color(0, 255, 0);
