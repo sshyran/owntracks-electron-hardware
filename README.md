@@ -45,7 +45,9 @@ A backend Python program listens for PRIVATE events named `owntracks` from the t
 
 ![Electron with GPS](assets/electron-gps_bb.png)
 
-When using the Ultimate GPS, we could connect the `EN`able pin to the Electron to switch off the GPS module whilst the Electron is asleep (as shown with the optional yellow connection).
+When using the Ultimate GPS, we can connect the `EN`able pin to the Electron to switch off the GPS module whilst the Electron is asleep (as shown with the optional yellow connection). A 2.2K resistor between `EN` and `GND` will ensure the module is off by default.
+
+> The LED on the GPS module blinks at about 1Hz while it's searching for satellites and blinks once every 15 seconds when a fix is found to conserve power
 
 
 ## Compiling
