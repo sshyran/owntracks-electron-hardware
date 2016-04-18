@@ -12,6 +12,8 @@
  */
 
 #include "TinyGPS++.h"
+#include "cellular_hal.h"
+#include "apn.h"
 
 /*
  * When connecting an Adafruit Ultimate GPS, optionally
@@ -19,7 +21,7 @@
  * and define ENABLE_PIN to the digital pin on the Electron.
  */
 
-#define ENABLE_PIN	D1
+#define ENABLE_PIN	D4
 
 
 long lastSync;
@@ -29,8 +31,8 @@ char status[128];
 
 int set_interval(String secs);		// Particle function
 
-#define INTERVAL_ADDRESS 0x0000
-#define INTERVAL_DEFAULT 0
+#define INTERVAL_ADDRESS 0x000A
+#define INTERVAL_DEFAULT 600
 uint32_t interval;			// "publish" interval in seconds
 
 long last_fix;
@@ -49,6 +51,10 @@ void setup()
 #ifdef ENABLE_PIN
 	pinMode(ENABLE_PIN, OUTPUT);
 	digitalWrite(ENABLE_PIN, HIGH);
+#endif
+
+#ifdef APNxxx
+	STARTUP(cellular_credentials_set(APN, USERNAME, PASSWORD, NULL));
 #endif
 
 	Time.zone(0);
