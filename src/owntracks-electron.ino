@@ -57,6 +57,11 @@ void setup()
 	STARTUP(cellular_credentials_set(APN, USERNAME, PASSWORD, NULL));
 #endif
 
+	Cellular.on();
+	Cellular.connect(WIFI_CONNECT_SKIP_LISTEN);
+	Particle.connect();
+	Particle.connected();
+
 	Time.zone(0);
 	lastSync = Time.now();
 	lastCell = 0;
@@ -144,6 +149,7 @@ void loop()
 			delay(667);
 		}
 		if (interval) {
+			Cellular.off();
 			System.sleep(SLEEP_MODE_DEEP, interval);
 		}
 	}
