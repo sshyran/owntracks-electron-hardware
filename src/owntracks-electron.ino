@@ -149,6 +149,7 @@ void loop()
 			delay(667);
 		}
 		if (interval) {
+			Cellular.disconnect();
 			Cellular.off();
 			System.sleep(SLEEP_MODE_DEEP, interval);
 		}
