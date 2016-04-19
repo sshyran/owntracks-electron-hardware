@@ -105,7 +105,7 @@ The back-end `obtain.py` program requires:
 
 Over a period of almost 24 hours, the Electron has been waking up from deep sleep once every 10 minutes (600s) to obtain a GPS fix and publish that as described above. We are seeing an average data consumption of 6.02 kilobyte per event. This includes the overhead of connecting to provider, handshakes, Particle Cloud connection, publishing the net data payload, etc.
 
-![Data consumption][assets/jmbp-2667.png]
+![Data consumption](assets/jmbp-2667.png)
 
 These numbers were obtained directly from the SIM-card provider.
 
