@@ -109,5 +109,13 @@ Over a period of almost 24 hours, the Electron has been waking up from deep slee
 
 These numbers were obtained directly from the SIM-card provider.
 
+## Boot
+
+When the Electron wakes up, the following sequence of LED flashes will be displayed:
+
+1. GREEN flashing: the Electron is obtaining access to the GPRS network
+2. Fast BLUISH flashing: the Electron has cellular network and is booting
+3. RED / BLUE alternating: we are waiting for a GPS fix
+4. GREEN flashing: disconnecting from cellular, and going into deep sleep
 
   [OwnTracks]: http://owntracks.org
