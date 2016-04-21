@@ -109,6 +109,8 @@ Over a period of almost 24 hours, the Electron has been waking up from deep slee
 
 These numbers were obtained directly from the SIM-card provider.
 
+The Electron ran for 76 hours (just over three days) on a single charge of it's Lipo battery, publishing every 10 minutes (600 seconds). During this time, we noticed twice that the device went into listening mode, sometimes for 3 or more hours, until we hit `RESET`, in spite of enabling/disabling Cellular in the sketch, as per recommendation.
+
 ## Boot
 
 When the Electron wakes up, the following sequence of LED flashes will be displayed:
